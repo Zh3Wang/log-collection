@@ -8,14 +8,18 @@ import (
 var Kclient sarama.SyncProducer
 
 //连接kafka
-func InitKafka(addr []string) error {
+func InitKafka(addr []interface{}) error {
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.Return.Successes = true
 
 	var err error
-	Kclient, err = sarama.NewSyncProducer(addr, config)
+	var addrString []string
+	for _, v := range addr {
+		addrString = append(addrString, v.(string))
+	}
+	Kclient, err = sarama.NewSyncProducer(addrString, config)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 	"log"
+	"log-collection/logAgent/conf"
 	"log-collection/logAgent/kafka"
 	"log-collection/logAgent/taillog"
 	"time"
@@ -33,14 +35,17 @@ func Run() {
 }
 
 func InitObj() {
+	//加载配置文件
+	conf.Load()
+
 	//实例化tail模块，监测日志
-	err := taillog.InitTail("./my.log")
+	err := taillog.InitTail(viper.Get("log.file").(string))
 	if err != nil {
 		panic(fmt.Sprintf("实例化tail失败：%s", err.Error()))
 	}
 
 	//连接kafka
-	err = kafka.InitKafka([]string{"127.0.0.1:9092"})
+	err = kafka.InitKafka(viper.Get("kafka.addr").([]interface{}))
 	if err != nil {
 		panic(fmt.Sprintf("Kafka连接失败：%s", err.Error()))
 	}

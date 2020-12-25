@@ -1,0 +1,13 @@
+app_mode = "development"
+
+[mysql]
+ip = "localhost"
+port = 3306
+root = "root"
+password = "mysql"
+
+[kafka]
+addr = ["127.0.0.1:9092","127.0.0.1:9093","127.0.0.1:9094"]
+
+[log]
+file = "./my.log"

@@ -1,12 +1,28 @@
 package taillog
 
 import (
+	"fmt"
 	"github.com/hpcloud/tail"
+	"log-collection/logAgent/kafka"
+	"time"
 )
 
-var tailObj *tail.Tail
+type TailTask struct {
+	topic    string
+	file     string
+	instance *tail.Tail
+}
 
-func InitTail(filename string) error {
+//实例化一个tail任务
+func newTailTask(topic, file string) {
+	var t = TailTask{
+		topic: topic,
+		file:  file,
+	}
+	t.initTail(file)
+}
+
+func (t *TailTask) initTail(file string) {
 	config := tail.Config{
 		ReOpen: true,
 		Follow: true,
@@ -17,11 +33,19 @@ func InitTail(filename string) error {
 		MustExist: false,
 		Poll:      true,
 	}
-	var err error
-	tailObj, err = tail.TailFile(filename, config)
-	return err
+	t.instance, _ = tail.TailFile(file, config)
+	go t.run()
 }
 
-func ReadChan() chan *tail.Line {
-	return tailObj.Lines
+func (t *TailTask) run() {
+	for {
+		select {
+		case line := <-t.instance.Lines:
+			fmt.Println(t.topic, " ----- ", line.Text)
+			kafka.SendToChann(t.topic, line.Text)
+		default:
+			time.Sleep(time.Millisecond * 500)
+		}
+
+	}
 }

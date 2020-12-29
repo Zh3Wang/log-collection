@@ -48,3 +48,17 @@ func GetLogConf(key string) (LogEntry []*LogEntry) {
 
 	return
 }
+
+//监测新配置，并写入到指定channel中
+func Watcher(key string, logConfChan chan<- []*LogEntry) {
+	//派一个哨兵，检测某个key是否有变化
+	ch := Cli.Watch(context.TODO(), key)
+	for v := range ch {
+		for _, vv := range v.Events {
+			fmt.Println(string(vv.Kv.Key), string(vv.Kv.Value), vv.Type)
+			var LogEntry []*LogEntry
+			_ = json.Unmarshal(vv.Kv.Value, &LogEntry)
+			logConfChan <- LogEntry
+		}
+	}
+}

@@ -6,6 +6,11 @@ import (
 	"log-collection/logAgent/etcd"
 	"log-collection/logAgent/kafka"
 	"log-collection/logAgent/taillog"
+	"sync"
+)
+
+var (
+	wg sync.WaitGroup
 )
 
 //入口
@@ -26,7 +31,12 @@ func InitObj() {
 	etcd.InitEtcd(viper.Get("etcd.addr").([]interface{}))
 	//从etcd中获取日志收集项的配置
 	logConf := etcd.GetLogConf(viper.Get("etcd.logKey").(string))
-	//实例化tail模块，监测日志
+	//实例化tail模块，读取日志
 	taillog.Init(logConf)
-	select {}
+
+	//开启一个watcher监测新配置的变更状态
+	logConfChan := taillog.LogConfChan()
+	wg.Add(1)
+	go etcd.Watcher(viper.Get("etcd.logKey").(string), logConfChan)
+	wg.Wait()
 }

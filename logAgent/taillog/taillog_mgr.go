@@ -13,13 +13,19 @@ var (
 type tailManager struct {
 	LogEntry    []*etcd.LogEntry
 	LogConfChan chan []*etcd.LogEntry
+	LogTailObj  map[string]*etcd.LogEntry
 }
 
 func Init(logConf []*etcd.LogEntry) {
 	//将日志收集的配置信息存起来，方便后期进行热更新
+	var logTailObjs = make(map[string]*etcd.LogEntry)
+	for _, v := range logConf {
+		logTailObjs[v.Topic] = v
+	}
 	taskMgr = &tailManager{
 		LogEntry:    logConf,
 		LogConfChan: make(chan []*etcd.LogEntry), //接受新配置的通道
+		LogTailObj:  logTailObjs,
 	}
 	for _, v := range logConf {
 		newTailTask(v.Topic, v.FilePath+v.FileName)

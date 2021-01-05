@@ -1,0 +1,14 @@
+app_mode = "development"
+[etcd]
+addr = ["127.0.0.1:2379"]
+logKey = "Log-Collection/logAgent/log"
+
+[mysql]
+ip = "localhost"
+port = 3306
+root = "root"
+password = "mysql"
+
+[kafka]
+addr = ["127.0.0.1:9092","127.0.0.1:9093","127.0.0.1:9094"]
+maxSize = 1000

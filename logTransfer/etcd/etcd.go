@@ -3,6 +3,7 @@ package etcd
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/coreos/etcd/clientv3"
 	"log"
 	"time"
@@ -51,4 +52,23 @@ func GetLogConfTopic(key string) []string {
 		topics = append(topics, v.Topic)
 	}
 	return topics
+}
+
+//watcher
+func Watcher(key string, newConfChan chan<- []*LogEntry) {
+	ch := Cli.Watch(context.TODO(), key)
+	for {
+		select {
+		case cfg := <-ch:
+			//配置更新
+			for _, v := range cfg.Events {
+				fmt.Println("新配置来啦~~ : ", string(v.Kv.Key), string(v.Kv.Value), v.Type)
+				var LogEntry []*LogEntry
+				_ = json.Unmarshal(v.Kv.Value, &LogEntry)
+				newConfChan <- LogEntry
+			}
+		default:
+			time.Sleep(time.Millisecond * 500)
+		}
+	}
 }

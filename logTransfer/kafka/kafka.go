@@ -17,12 +17,7 @@ type ConsumeTask struct {
 }
 
 //消费队列数据，发送到ES中
-func NewConsume(topic string) {
-	//为每一个topic新建一个消费任务
-	var ct = ConsumeTask{
-		Topic: topic,
-	}
-
+func NewConsume(topic string) (tasks []*ConsumeTask) {
 	//获取指定topic的分区列表
 	partitionList, err := Consumer.Partitions(topic)
 	if err != nil {
@@ -38,10 +33,18 @@ func NewConsume(topic string) {
 			log.Fatal(fmt.Sprintf("failed to start consumer for partition %d,err:%v\n", partition, err))
 		}
 
-		// 创建goroutine，异步从每个topic下的每个分区中消费信息
+		//为每一个topic下的每一个分区新建一个消费任务
+		var ct = ConsumeTask{
+			Topic: topic,
+		}
 		ct.ctx, ct.cancelFunc = context.WithCancel(context.Background())
+		//收集一个topic下的所有分区消费者任务
+		tasks = append(tasks, &ct)
+		// 创建goroutine，异步从每个topic下的每个分区中消费信息
 		go ct.run(pc)
 	}
+
+	return
 }
 
 //监听队列，发送到es通道中异步处理
@@ -50,12 +53,12 @@ func (ct *ConsumeTask) run(pc sarama.PartitionConsumer) {
 	for {
 		select {
 		case msg := <-pc.Messages():
-			fmt.Printf("Partition:%d Offset:%d Key:%v Value:%s", msg.Partition, msg.Offset, msg.Key, msg.Value)
+			fmt.Printf("Partition:%d Offset:%d Value:%s\n", msg.Partition, msg.Offset, msg.Value)
 		case <-ct.ctx.Done():
 			fmt.Println("退出一个topic的kafka消费者：", ct.Topic)
 			return
 		default:
-			time.Sleep(time.Millisecond * 500)
+			time.Sleep(time.Millisecond * 100)
 		}
 	}
 

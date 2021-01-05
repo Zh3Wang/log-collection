@@ -31,6 +31,12 @@ func Init() {
 	addr = viper.Get("kafka.addr").([]interface{})
 	kafka.InitConsumer(addr, topics)
 
+	//新配置专用通道
+	newConfChan := kafka.GetNewConfChan()
+
+	//启动一个watcher监听etcd新配置
+	go etcd.Watcher(key, newConfChan)
+
 	//阻塞进程
 	select {}
 }

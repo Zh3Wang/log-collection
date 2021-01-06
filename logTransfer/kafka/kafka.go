@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/Shopify/sarama"
 	"log"
+	"log-collection/logTransfer/es"
+	"log-collection/logTransfer/lib"
 	"time"
 )
 
@@ -54,6 +56,18 @@ func (ct *ConsumeTask) run(pc sarama.PartitionConsumer) {
 		select {
 		case msg := <-pc.Messages():
 			fmt.Printf("Partition:%d Offset:%d Value:%s\n", msg.Partition, msg.Offset, msg.Value)
+			//构造发送的数据结构体
+			ip, _ := lib.GetInternetIp()
+			var b = &es.BodyData{
+				Topic:   ct.Topic,
+				Content: string(msg.Value),
+				Ip:      ip,
+			}
+			var data = &es.MainData{
+				Index:    ct.Topic,
+				BodyData: b,
+			}
+			es.SendEs(data)
 		case <-ct.ctx.Done():
 			fmt.Println("退出一个topic的kafka消费者：", ct.Topic)
 			return

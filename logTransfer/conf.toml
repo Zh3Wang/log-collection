@@ -1,6 +1,6 @@
 app_mode = "development"
 [etcd]
-addr = ["127.0.0.1:2379"]
+addr = ["120.24.24.191:2379"]
 logKey = "Log-Collection/logAgent/log"
 
 [mysql]
@@ -10,8 +10,8 @@ root = "root"
 password = "mysql"
 
 [kafka]
-addr = ["127.0.0.1:9092"]
+addr = ["120.24.24.191:9092"]
 maxSize = 1000
 
 [es]
-addr = "http://127.0.0.1:9200"
+addr = "http://123.56.123.19:9200"

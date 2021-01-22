@@ -49,7 +49,7 @@ func (t *TailTask) run() {
 	for {
 		select {
 		case line := <-t.instance.Lines:
-			fmt.Println(t.topic, t.file, " ----- ", line.Text)
+			//fmt.Println(t.topic, t.file, " ----- ", line.Text)
 			kafka.SendToChann(t.topic, line.Text)
 		case <-t.ctx.Done():
 			fmt.Println("退出一个tail任务：", t.topic, t.file)

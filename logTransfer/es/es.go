@@ -17,6 +17,7 @@ type BodyData struct {
 	Topic   string `json:"topic"`
 	Content string `json:"content"`
 	Ip      string `json:"ip"`
+	Dates   string `json:"dates"`
 }
 
 var (
@@ -26,7 +27,7 @@ var (
 
 func Init(addr string) {
 	var err error
-	Cli, err = elastic.NewClient(elastic.SetURL(addr))
+	Cli, err = elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(addr))
 	if err != nil {
 		log.Fatal(fmt.Sprintf("ES 连接失败：%v", err))
 	}
@@ -42,11 +43,12 @@ func Insert() {
 	for {
 		select {
 		case md := <-DataChan:
-			put, err := Cli.Index().Index(md.Index).BodyJson(md.BodyData).Do(context.TODO())
+			//put, err := Cli.Index().Index(md.Index).BodyJson(md.BodyData).Do(context.TODO())
+			_, err := Cli.Index().Index(md.Index).BodyJson(md.BodyData).Do(context.TODO())
 			if err != nil {
 				log.Fatal(fmt.Sprintf("ES 插入失败：%v", err))
 			}
-			fmt.Printf("Indexed user %s to index %s, type %s\n", put.Id, put.Index, put.Type)
+			//fmt.Printf("Indexed user %s to index %s, type %s\n", put.Id, put.Index, put.Type)
 		default:
 			time.Sleep(time.Millisecond * 100)
 		}

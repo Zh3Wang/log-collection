@@ -55,13 +55,15 @@ func (ct *ConsumeTask) run(pc sarama.PartitionConsumer) {
 	for {
 		select {
 		case msg := <-pc.Messages():
-			fmt.Printf("Partition:%d Offset:%d Value:%s\n", msg.Partition, msg.Offset, msg.Value)
+			//fmt.Printf("Partition:%d Offset:%d Value:%s\n", msg.Partition, msg.Offset, msg.Value)
 			//构造发送的数据结构体
 			ip, _ := lib.GetInternetIp()
+			date := time.Now().Format("2006-01-02 15:04:05")
 			var b = &es.BodyData{
 				Topic:   ct.Topic,
 				Content: string(msg.Value),
 				Ip:      ip,
+				Dates:   date,
 			}
 			var data = &es.MainData{
 				Index:    ct.Topic,

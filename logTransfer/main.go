@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/viper"
+	"log"
 	"log-collection/logTransfer/conf"
 	"log-collection/logTransfer/es"
 	"log-collection/logTransfer/etcd"
@@ -27,7 +28,7 @@ func Init() {
 	//获取配置topic,决定要从kafka哪个topic中读取数据
 	etcdKey := viper.GetString("etcd.logKey")
 	topics := etcd.GetLogConfTopic(etcdKey)
-
+	log.Println("监听的主题：", topics)
 	//创建ES
 	esAddr := viper.GetString("es.addr")
 	es.Init(esAddr)

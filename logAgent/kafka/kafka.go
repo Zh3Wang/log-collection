@@ -33,6 +33,7 @@ func InitKafka(addr []interface{}, maxSize int) {
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Kafka连接失败：%s", err.Error()))
 	}
+	log.Println("连接kafka成功~~")
 	//创建一个协程
 	LogChan = make(chan *LogData, maxSize)
 	go send()
@@ -63,10 +64,11 @@ func SendTo(ld *LogData) {
 	msg.Topic = ld.Topic
 	msg.Value = sarama.StringEncoder(ld.Content)
 
-	pid, offset, _ := Kclient.SendMessage(msg)
+	//pid, offset, _ := Kclient.SendMessage(msg)
+	_, _, _ = Kclient.SendMessage(msg)
 	//if err != nil {
 	//	return err
 	//}
-	fmt.Printf("pid: %v offset:%v\n", pid, offset)
+	//fmt.Printf("pid: %v offset:%v\n", pid, offset)
 	//return nil
 }

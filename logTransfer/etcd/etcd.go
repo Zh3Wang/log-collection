@@ -32,6 +32,7 @@ func InitEtcd(addr []interface{}) {
 	if err != nil {
 		log.Fatal("连接etcd失败：", err)
 	}
+	log.Println("连接etcd成功~~")
 }
 
 //获取配置

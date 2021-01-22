@@ -32,6 +32,7 @@ func InitEtcd(addr []interface{}) {
 	if err != nil {
 		log.Fatal("连接etcd失败：", err)
 	}
+	log.Println("连接etcd成功~~")
 }
 
 func GetLogConf(key string) (LogEntry []*LogEntry) {
@@ -41,11 +42,18 @@ func GetLogConf(key string) (LogEntry []*LogEntry) {
 	if err != nil {
 		log.Fatal(fmt.Sprintf("etcd get 操作失败：%v \n", err))
 	}
-
 	for _, v := range resp.Kvs {
+		log.Println(string(v.Value))
 		_ = json.Unmarshal(v.Value, &LogEntry)
 	}
-
+	//now := time.Now()
+	//for k,_ := range LogEntry{
+	//	date := now.Format("2006-01-02")
+	//	dates := strings.Split(date,"-")
+	//	year, month, day := dates[0], dates[1], dates[2]
+	//	LogEntry[k].FileName = fmt.Sprintf(LogEntry[k].FileName,day)
+	//	LogEntry[k].FilePath = fmt.Sprintf(LogEntry[k].FilePath,year,month)
+	//}
 	return
 }
 

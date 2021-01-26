@@ -17,7 +17,7 @@ type BodyData struct {
 	Topic   string `json:"topic"`
 	Content string `json:"content"`
 	Ip      string `json:"ip"`
-	Dates   string `json:"dates"`
+	Dates   int64  `json:"dates"`
 }
 
 var (
